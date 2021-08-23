@@ -76,6 +76,7 @@ class KNearestNeighbor(object):
                 # not use a loop over dimension, nor use np.linalg.norm().          #
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
                 dists[i][j] = np.sqrt(np.sum(np.square(self.X_train[j] - X[i])))
 
                 pass
@@ -101,7 +102,8 @@ class KNearestNeighbor(object):
             # Do not use np.linalg.norm().                                        #
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            dists[i] = np.sqrt(np.sum(np.square(self.X_train - X[i]), axis = 1))
+            #(1 ~ n 열을 하나의 열로 압축 -> axis = 1)
             pass
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -132,6 +134,14 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        dists = np.sqrt(np.reshape(np.sum(X**2, axis = 1), [num_test, 1]) + np.sum(self.X_train**2, axis = 1) -2*np.dot(X, self.X_train.T))
+        #500*3000 행렬과 5000*3000행렬을 연산해야한다.
+        #우선 행렬식을 풀어보면 (X-X_train)^2 = X^2 + X_train^2 - 2 X * X_train
+        #행렬곱은 X.dot(X_train.T)로 해결
+        #X^2은 i, j가 선택되었을 때 X(i,j)^2 = X(i)^2 = sum(x(i)^2) = np.sum(X**2, axis = 1)
+        #X_train(i,j)^2 = X_train(j)^2 = sum(x_train(j)^2) = np.sum(X_train**2, axis = 1)
+        #broadcasting 이용 i,j에서 X(i), X_train(j)가 선택되도록 하려면 X를 num_test*1로 reshape 수행한 후 더해주면 됨
+        #그 후 행렬곱을 더해주면 dists 연산 종료
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -165,6 +175,8 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+            closest_y = self.y_train[np.argsort(dists[i])[:k]]
+            #dists[i]를 정렬하고 앞에서 k개만큼 뽑는다
             pass
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -176,6 +188,9 @@ class KNearestNeighbor(object):
             # label.                                                                #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+            y_pred[i] = np.bincount(closest_y).argmax()
+            #bincount = 빈도수, argmax = 최대값
 
             pass
 
