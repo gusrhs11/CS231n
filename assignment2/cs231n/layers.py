@@ -24,6 +24,7 @@ def affine_forward(x, w, b):
     # TODO: Copy over your solution from Assignment 1.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    out = x.reshape(x.shape[0], -1).dot(w) + b
 
     pass
 
@@ -56,7 +57,11 @@ def affine_backward(dout, cache):
     # TODO: Copy over your solution from Assignment 1.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    x2 = x.reshape(x.shape[0], -1)
+    dx = dout.dot(w.T).reshape(x.shape)
+    dw = x2.T.dot(dout)
+    db = np.sum(dout, axis = 0)
+    
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -81,7 +86,8 @@ def relu_forward(x):
     # TODO: Copy over your solution from Assignment 1.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    
+    out = np.maximum(0, x)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -107,7 +113,8 @@ def relu_backward(dout, cache):
     # TODO: Copy over your solution from Assignment 1.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    mask = x>0
+    dx = mask * dout
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -136,7 +143,17 @@ def softmax_loss(x, y):
     # TODO: Copy over your solution from Assignment 1.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    
+    N =x.shape[0]
+    correct_class_scores = x[np.arange(N), y].reshape(-1, 1)
+    margin = np.maximum(0, x - correct_class_scores + 1)
+    margin[np.arange(N), y] = 0
+    loss = np.sum(margin)/N
+    dx = np.zeros_like(x)
+    dx[margin > 0] = 1
+    dx[np.arange(N), y] -= np.sum(margin > 0, axis = 1)
+    dx /= N
+    
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
